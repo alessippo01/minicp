@@ -110,17 +110,39 @@ public class GraphColoringTinyCSP {
 
     }
 
-    /**
-     * Solve the graph coloring problem
-     * @param instance a graph coloring instance
-     * @return the color of each node such that no two adjacent nodes receive a same color,
-     *         or null if the problem is unfeasible
-     */
+    // TODO: solve the graph coloring problem using TinyCSP and return a solution
+    // Hint: you can stop the search on first solution, throwing and catching an exception
+    //       in the onSolution closure, or you can modify the dfs search
     public static int[] solve(GraphColoringInstance instance) {
-        // TODO: solve the graph coloring problem using TinyCSP and return a solution
-        // Hint: you can stop the search on first solution throwing and catching an exception
-        //       in the onSolution closure or you can modify the dfs search
-         throw new NotImplementedException("GraphColoringTinyCSP");
+
+        TinyCSP csp = new TinyCSP();
+        
+        Variable[] nodes = new Variable[instance.n];
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = csp.makeVariable(instance.maxColor);
+        }
+        
+        for (int[] edge : instance.edges) {
+            int node1 = edge[0];
+            int node2 = edge[1];
+            csp.notEqual(nodes[node1], nodes[node2], 0);
+        }
+        
+        final int[][] firstSolution = new int[1][];
+        
+        try {
+            csp.dfs(solution -> {
+                firstSolution[0] = solution.clone(); 
+                throw new RuntimeException("Solution found");}
+                );
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("Solution found")) {
+                return firstSolution[0];
+            }
+            throw e;
+        }
+        
+        return null;
     }
 
 
